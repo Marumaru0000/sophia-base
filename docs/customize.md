@@ -16,7 +16,7 @@ ORDERING_MENU_DRIVER=array
 メニュー情報を変更することがほとんどなくPHPのコードで管理できれば十分な場合はArrayドライバーでいい。外部へのAPIリクエストがないので最速。
 
 使い方はLaravelプロジェクト内にclassを作る。  
-`app/Odering/FooMenu.php`  
+`app/Ordering/FooMenu.php`  
 SampleMenuを参考に同じようにCollectionを返す。  
 https://github.com/kawax/self-ordering/blob/develop/src/Menu/SampleMenu.php
 
@@ -62,7 +62,7 @@ Laravelの通知機能などを使って作りましょう。
 https://github.com/kawax/self-ordering/tree/develop/src/Actions
 
 ### 注文を変更
-`app/Odering/Actions/OrderAction.php`を作る。
+`app/Ordering/Actions/OrderAction.php`を作る。
 
 ```php
 <?php
@@ -122,7 +122,7 @@ A,B,Cでのリダイレクト先の設定方法。
 `resources/views/vendor/ordering/dashboard.blade.php`だけ作って管理画面をカスタマイズするような使い方ができる。
 
 ## Livewire
-`app/Odering/Livewire/Menus.php`などを作って`AppServiceProvider@register`で登録すればLivewireのclassごと変更可能。
+`app/Ordering/Livewire/Menus.php`などを作って`AppServiceProvider@register`で登録すればLivewireのclassごと変更可能。
 
 ```php
 use Livewire\Livewire;
