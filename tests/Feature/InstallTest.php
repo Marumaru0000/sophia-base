@@ -10,7 +10,7 @@ class InstallTest extends TestCase
 {
     public function test_install()
     {
-        $this->artisan('ordering:install')
+        $this->artisan('ordering:install', ['--vercel' => true])
              ->assertSuccessful()
              ->expectsOutput('Ordering scaffolding installed successfully.');
 

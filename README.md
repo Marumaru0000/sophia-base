@@ -50,12 +50,14 @@
 ## インストール
 「Laravelでセルフオーダーシステムを作るためのスターターキット」なので必ずLaravelの新規プロジェクトを作るところから始めてください。`ordering:install`コマンドでファイルが上書きされます。
 
-```
+```shell
 curl -s "https://laravel.build/self-ordering-project" | bash
 cd ./self-ordering-project
 
 composer require revolution/self-ordering
 
+php artisan ordering:install --vercel
+# Vercel用のファイルが不要なら--vercelを付けない
 php artisan ordering:install
 
 npm install && npm run build

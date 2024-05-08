@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Revolution\Ordering\Console;
 
 use Illuminate\Console\Command;
-use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\File;
 
 class InstallCommand extends Command
 {
@@ -14,7 +14,7 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'ordering:install';
+    protected $signature = 'ordering:install {--vercel}';
 
     /**
      * The console command description.
@@ -30,49 +30,36 @@ class InstallCommand extends Command
      */
     public function handle(): int
     {
-        copy(__DIR__.'/../../stubs/tailwind.config.js', base_path('tailwind.config.js'));
-        copy(__DIR__.'/../../stubs/postcss.config.js', base_path('postcss.config.js'));
-        copy(__DIR__.'/../../stubs/vite.config.js', base_path('vite.config.js'));
+        File::copy(__DIR__.'/../../stubs/tailwind.config.js', base_path('tailwind.config.js'));
+        File::copy(__DIR__.'/../../stubs/postcss.config.js', base_path('postcss.config.js'));
+        File::copy(__DIR__.'/../../stubs/vite.config.js', base_path('vite.config.js'));
 
-        (new Filesystem())->ensureDirectoryExists(resource_path('css'));
-        copy(__DIR__.'/../../stubs/resources/css/app.css', resource_path('css/app.css'));
+        File::ensureDirectoryExists(resource_path('css'));
+        File::copy(__DIR__.'/../../stubs/resources/css/app.css', resource_path('css/app.css'));
 
-        (new Filesystem())->ensureDirectoryExists(resource_path('js'));
-        copy(__DIR__.'/../../stubs/resources/js/app.js', resource_path('js/app.js'));
-        copy(__DIR__.'/../../stubs/package.json', base_path('package.json'));
+        File::ensureDirectoryExists(resource_path('js'));
+        File::copy(__DIR__.'/../../stubs/resources/js/app.js', resource_path('js/app.js'));
+        File::copy(__DIR__.'/../../stubs/package.json', base_path('package.json'));
 
         // images
-        (new Filesystem())->ensureDirectoryExists(public_path('images'));
-        (new Filesystem())->copyDirectory(__DIR__.'/../../stubs/images/', public_path('images'));
+        File::ensureDirectoryExists(public_path('images'));
+        File::copyDirectory(__DIR__.'/../../stubs/images/', public_path('images'));
 
         // Listeners
-        (new Filesystem())->ensureDirectoryExists(app_path('Listeners'));
-        (new Filesystem())->copyDirectory(__DIR__.'/../../stubs/app/Listeners/', app_path('Listeners'));
+        File::ensureDirectoryExists(app_path('Listeners'));
+        File::copyDirectory(__DIR__.'/../../stubs/app/Listeners/', app_path('Listeners'));
 
         // Vercel
-        (new Filesystem())->ensureDirectoryExists(base_path('api'));
-        (new Filesystem())->copyDirectory(__DIR__.'/../../stubs/api/', base_path('api'));
-        copy(__DIR__.'/../../stubs/.vercelignore', base_path('.vercelignore'));
-        copy(__DIR__.'/../../stubs/vercel.json', base_path('vercel.json'));
+        if ($this->option('vercel')) {
+            File::ensureDirectoryExists(base_path('api'));
+            File::copyDirectory(__DIR__.'/../../stubs/api/', base_path('api'));
+            File::copy(__DIR__.'/../../stubs/.vercelignore', base_path('.vercelignore'));
+            File::copy(__DIR__.'/../../stubs/vercel.json', base_path('vercel.json'));
+        }
 
         $this->info('Ordering scaffolding installed successfully.');
         $this->comment('Please execute the "npm install && npm run build" command to build your assets.');
 
         return 0;
-    }
-
-    /**
-     * Replace a given string within a given file.
-     *
-     * @param  string  $search
-     * @param  string  $replace
-     * @param  string  $path
-     * @return void
-     *
-     * @codeCoverageIgnore
-     */
-    protected function replaceInFile(string $search, string $replace, string $path): void
-    {
-        file_put_contents($path, str_replace($search, $replace, file_get_contents($path)));
     }
 }

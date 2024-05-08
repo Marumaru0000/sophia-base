@@ -9,7 +9,7 @@ README通りにインストールしたプロジェクトが前提。
 https://github.com/kawax/self-ordering-starter
 
 ## 必要なファイルは追加済
-`php artisan ordering:install`でVercelで動かすためのファイルもインストールされている。
+`php artisan ordering:install --vercel`でVercelで動かすためのファイルもインストールされている。
 
 変更するとしたら`vercel.json`の`APP_NAME`。
 
