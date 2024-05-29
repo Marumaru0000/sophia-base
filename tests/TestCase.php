@@ -8,7 +8,7 @@ use Livewire\LivewireServiceProvider;
 use Revolution\Ordering\Providers\OrderingServiceProvider;
 use Revolution\PayPay\PayPayServiceProvider;
 
-class TestCase extends \Orchestra\Testbench\TestCase
+abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
     /**
      * Load package service provider.
