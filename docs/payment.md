@@ -84,7 +84,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->singleton(PaymentMethodFactory::class, PaymentMethod::class);
+        $this->app->scoped(PaymentMethodFactory::class, PaymentMethod::class);
     }
 }
 ```

@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->singleton(MenuData::class, FooMenu::class);
+        $this->app->scoped(MenuData::class, FooMenu::class);
     }
 ```
 
@@ -100,7 +100,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->singleton(Order::class, OrderAction::class);
+        $this->app->scoped(Order::class, OrderAction::class);
     }
 ```
 
