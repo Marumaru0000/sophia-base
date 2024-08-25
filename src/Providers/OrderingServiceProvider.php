@@ -37,9 +37,7 @@ class OrderingServiceProvider extends ServiceProvider
             ], config('auth.guards.ordering', [])),
         ]);
 
-        if (! $this->app->configurationIsCached()) {
-            $this->mergeConfigFrom(__DIR__.'/../../config/ordering.php', 'ordering');
-        }
+        $this->mergeConfigFrom(__DIR__.'/../../config/ordering.php', 'ordering');
     }
 
     public function boot(): void

@@ -35,19 +35,19 @@ trait WithBindings
 {
     protected function registerBindings(): void
     {
-        $this->app->singleton(OrderingGuard::class, OrderingRequestGuard::class);
-        $this->app->singleton(Login::class, LoginAction::class);
-        $this->app->singleton(Logout::class, LogoutAction::class);
-        $this->app->singleton(MenuStorage::class, MenuManager::class);
-        $this->app->singleton(MenuData::class, SampleMenu::class);
-        $this->app->singleton(AddCart::class, AddCartAction::class);
-        $this->app->singleton(ResetCart::class, ResetCartAction::class);
-        $this->app->singleton(Order::class, OrderAction::class);
-        $this->app->singleton(AddHistory::class, AddHistoryAction::class);
-        $this->app->singleton(PaymentFactory::class, PaymentManager::class);
-        $this->app->singleton(PaymentMethodFactory::class, PaymentMethod::class);
-        $this->app->singleton(CartFactory::class, SessionCart::class);
+        $this->app->scoped(OrderingGuard::class, OrderingRequestGuard::class);
+        $this->app->scoped(Login::class, LoginAction::class);
+        $this->app->scoped(Logout::class, LogoutAction::class);
+        $this->app->scoped(MenuStorage::class, MenuManager::class);
+        $this->app->scoped(MenuData::class, SampleMenu::class);
+        $this->app->scoped(AddCart::class, AddCartAction::class);
+        $this->app->scoped(ResetCart::class, ResetCartAction::class);
+        $this->app->scoped(Order::class, OrderAction::class);
+        $this->app->scoped(AddHistory::class, AddHistoryAction::class);
+        $this->app->scoped(PaymentFactory::class, PaymentManager::class);
+        $this->app->scoped(PaymentMethodFactory::class, PaymentMethod::class);
+        $this->app->scoped(CartFactory::class, SessionCart::class);
 
-        $this->app->singleton(MenusIndex::class, MenusIndexAction::class);
+        $this->app->scoped(MenusIndex::class, MenusIndexAction::class);
     }
 }

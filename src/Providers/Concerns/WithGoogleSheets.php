@@ -10,12 +10,12 @@ trait WithGoogleSheets
 {
     protected function registerGoogle(): void
     {
-        $this->app->singleton(
+        $this->app->scoped(
             'ordering.google.sheets',
             fn ($app) => $app->make(GoogleSheetsFactory::class)()
         );
 
-        $this->app->singleton(
+        $this->app->scoped(
             'ordering.google.sheets.values',
             fn ($app) => $app->make('ordering.google.sheets')->spreadsheets_values
         );
