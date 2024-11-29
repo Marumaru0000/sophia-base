@@ -21,8 +21,12 @@ class CreateQrCode
      */
     public function __invoke(): array
     {
-        return PayPay::code()->createQRCode($this->payload());
+        $response = PayPay::code()->createQRCode($this->payload());
+
+        // QRコード生成後のレスポンスをログに記録
         \Log::info('PayPay QR Code Response:', $response);
+
+        return $response;
     }
 
     /**
@@ -47,6 +51,9 @@ class CreateQrCode
         );
 
         $payload->setOrderDescription(config('ordering.payment.paypay.order_description', ' '));
+
+        // ペイロード内容をログに記録
+        \Log::info('PayPay QR Code Payload:', $payload->toArray());
 
         return $payload;
     }
