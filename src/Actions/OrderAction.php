@@ -22,7 +22,7 @@ class OrderAction implements Order
     public function order(array $options = null): void
     {
         $items = Cart::all();
-        $table = session('table');
+        /*$table = session('table');*/
         $memo = session('memo');
 
         app(ResetCart::class)->reset();
