@@ -16,10 +16,6 @@ class HasTable
      */
     public function handle(Request $request, Closure $next)
     {
-        if (empty($request->table)) {
-            return redirect()->route('table');
-        }
-
         return $next($request);
     }
 }
