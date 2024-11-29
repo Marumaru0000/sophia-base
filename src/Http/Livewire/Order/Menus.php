@@ -13,6 +13,7 @@ use Revolution\Ordering\Contracts\Actions\AddCart;
 use Revolution\Ordering\Contracts\Actions\ResetCart;
 use Revolution\Ordering\Facades\Cart;
 use Revolution\Ordering\Facades\Menu;
+use GuzzleHttp\Client; // ← これを追加
 
 class Menus extends Component
 {
@@ -26,8 +27,33 @@ class Menus extends Component
      */
     public function mount(Request $request)
     {
-        $this->menus = Collection::wrap(Menu::get());
+        $client = new Client();
+        $response = $client->get(env('ORDERING_MICROCMS_ENDPOINT'), [
+            'headers' => ['X-API-KEY' => env('ORDERING_MICROCMS_API_KEY')]
+        ]);
 
+        // getContentsを使用して、レスポンスボディを文字列として取得
+        $data = json_decode($response->getBody()->getContents(), true);
+        // データを整形してmenusプロパティに格納
+        if (!empty($data['contents'])) {
+            $this->menus = collect($data['contents'])->map(function ($item) {
+                return [
+                    'id' => $item['id'] ?? null,
+                    'name' => $item['name'] ?? '名前がありません',
+                    'price' => $item['price'] ?? 0,
+                    'description' => $item['description'] ?? '',
+                    'image' => $item['image']['url'] ?? config('ordering.menu.no_image'),
+                    'is_available' => $item['is_available'] ?? false,
+                    'category' => $item['category'] ?? '未分類',
+                    'options' => [
+                        'rice' => $item['rice_options'] ?? null,
+                        'noodle' => $item['noodle_options'] ?? null,
+                    ]
+                ];
+            });
+        } else {
+            $this->menus = collect([]);
+        }
         session(['table' => $request->table]);
     }
 
@@ -36,7 +62,17 @@ class Menus extends Component
      */
     public function getItemsProperty(): Collection
     {
-        return Cart::items(Cart::all(), $this->menus);
+    return Cart::items(Cart::all(), $this->getMenus());
+    }
+    private function getMenus(): Collection
+    {
+    // Menusコンポーネントと同様にAPIを使ってデータを取得
+    $client = new Client();
+    $response = $client->get(env('ORDERING_MICROCMS_ENDPOINT'), [
+        'headers' => ['X-API-KEY' => env('ORDERING_MICROCMS_API_KEY')]
+    ]);
+    $data = json_decode($response->getBody()->getContents(), true);
+    return collect($data['contents'] ?? []);
     }
 
     /**

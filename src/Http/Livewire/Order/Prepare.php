@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\Redirector;
+use GuzzleHttp\Client; 
 use Revolution\Ordering\Contracts\Payment\PaymentMethodFactory;
 use Revolution\Ordering\Facades\Cart;
 use Revolution\Ordering\Facades\Payment;
@@ -39,9 +40,19 @@ class Prepare extends Component
      */
     public function getItemsProperty(): Collection
     {
-        return Cart::items();
+    return Cart::items(Cart::all(), $this->getMenus());
     }
 
+    private function getMenus(): Collection
+    {
+    // Menusコンポーネントと同様にAPIを使ってデータを取得
+    $client = new Client();
+    $response = $client->get(env('ORDERING_MICROCMS_ENDPOINT'), [
+        'headers' => ['X-API-KEY' => env('ORDERING_MICROCMS_API_KEY')]
+    ]);
+    $data = json_decode($response->getBody()->getContents(), true);
+    return collect($data['contents'] ?? []);
+    }
     /**
      * カートから削除.
      *

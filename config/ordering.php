@@ -25,7 +25,7 @@ return [
         /**
          * "array", "micro-cms", "google-sheets", "contentful".
          */
-        'driver' => env('ORDERING_MENU_DRIVER', 'array'),
+        'driver' => env('ORDERING_MENU_DRIVER', 'micro-cms'),
 
         //メニューの画像が設定されてない時の画像。
         'no_image' => env('ORDERING_NO_IMAGE', '/images/food_menu.png'),
@@ -74,11 +74,11 @@ return [
      */
     'payment' => [
         // 決済機能の有効化
-        'enabled' => env('ORDERING_PAYMENT_ENABLED', false),
+        'enabled' => env('ORDERING_PAYMENT_ENABLED', true),
 
         // 使用する支払い方法
         'methods' => [
-            'cash' => 'レジで後払い',
+            // 'cash' => 'レジで後払い',
             'paypay' => 'PayPay',
 
             // 'custom-pay' => 'CustomPay'
