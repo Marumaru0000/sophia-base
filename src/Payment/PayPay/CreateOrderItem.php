@@ -18,18 +18,18 @@ class CreateOrderItem
      * @throws ModelException
      */
     public function __invoke(array $menu): OrderItem
-{
-    \Log::info('Menu data:', $menu);
-
-    return app(OrderItem::class)
-        ->setName(Str::limit(Arr::get($menu, 'name'), 150))
-        ->setCategory(Str::limit(implode(',', (array) Arr::get($menu, 'category')), 255))
-        ->setProductId(Str::limit((string) Arr::get($menu, 'id'), 255))
-        ->setQuantity(1)
-        ->setUnitPrice([
-            'amount' => (int) Arr::get($menu, 'price'),
-            'currency' => config('paypay.currency', 'JPY'),
-        ]);
-}
-
+    {
+        return app(OrderItem::class)
+            ->setName(Str::limit(Arr::get($menu, 'name'), 150))
+            ->setCategory(Str::limit(
+                implode(',', collect(Arr::get($menu, 'category', []))
+                    ->pluck('value')
+                    ->toArray()), 255))
+            ->setProductId(Str::limit((string) Arr::get($menu, 'id'), 255))
+            ->setQuantity(1)
+            ->setUnitPrice([
+                'amount' => (int) Arr::get($menu, 'price'),
+                'currency' => config('paypay.currency', 'JPY'),
+            ]);
+    }
 }
