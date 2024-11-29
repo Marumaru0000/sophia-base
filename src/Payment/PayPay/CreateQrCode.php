@@ -22,6 +22,7 @@ class CreateQrCode
     public function __invoke(): array
     {
         return PayPay::code()->createQRCode($this->payload());
+        \Log::info('PayPay QR Code Response:', $response);
     }
 
     /**

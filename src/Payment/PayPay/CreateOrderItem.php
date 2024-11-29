@@ -21,7 +21,7 @@ class CreateOrderItem
     {
         return app(OrderItem::class)
             ->setName(Str::limit(Arr::get($menu, 'name'), 150))
-            ->setCategory(Str::limit((string) Arr::get($menu, 'category'), 255))
+            ->setCategory(Str::limit(implode(',', (array) Arr::get($menu, 'category')), 255))
             ->setProductId(Str::limit((string) Arr::get($menu, 'id'), 255))
             ->setQuantity(1)
             ->setUnitPrice([
