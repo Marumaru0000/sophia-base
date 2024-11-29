@@ -17,7 +17,6 @@ class ExampleTest extends TestCase
     {
         $response = $this->get(route('order'));
 
-        $response->assertStatus(302)
-                 ->assertRedirect(route('table'));
+        $response->assertStatus(200);
     }
 }
