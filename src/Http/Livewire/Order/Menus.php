@@ -54,8 +54,6 @@ class Menus extends Component
         } else {
             $this->menus = collect([]);
         }
-        // テーブル番号関連のコードを削除
-        //session(['table' => $request->table]);
     }
 
     /**

@@ -18,8 +18,8 @@ Route::view('dashboard', 'ordering::dashboard')
 Route::view('table', 'ordering::table')->name('table');
 
 Route::view('order/{table?}', 'ordering::order.index')
-     ->name('order')
-     ->middleware(HasTable::class);
+     ->name('order');
+     //->middleware(HasTable::class);
 
 Route::view('prepare', 'ordering::prepare.index')
      ->name('prepare');

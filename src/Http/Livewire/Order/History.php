@@ -65,7 +65,7 @@ class History extends Component
      */
     public function back()
     {
-        return redirect()->route('order', ['table' => session('table')]);
+        return redirect()->route('order');
     }
 
     public function render()

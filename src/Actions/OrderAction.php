@@ -22,7 +22,6 @@ class OrderAction implements Order
     public function order(array $options = null): void
     {
         $items = Cart::all();
-        /*$table = session('table');*/
         $memo = session('memo');
 
         app(ResetCart::class)->reset();
@@ -42,7 +41,6 @@ class OrderAction implements Order
             'order_id',
             'date',
             'items',
-            'table',
             'memo',
             'payment',
         ]));
@@ -50,7 +48,7 @@ class OrderAction implements Order
         OrderEntry::dispatch(
             $order_id,
             Cart::items($items)->toArray(),
-            $table,
+            null,
             $memo,
             $options,
         );

@@ -16,10 +16,9 @@ class LivewireMenusTest extends TestCase
     {
         $this->withoutVite();
 
-        $response = $this->get(route('order', ['table' => 'test']));
+        $response = $this->get(route('order'));
 
         $response->assertStatus(200)
-                 ->assertSessionHas('table', 'test')
                  ->assertSeeLivewire('ordering.menus');
     }
 
