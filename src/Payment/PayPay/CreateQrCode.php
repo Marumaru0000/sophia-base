@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Revolution\Ordering\Payment\PayPay;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use PayPay\OpenPaymentAPI\Controller\ClientControllerException;
 use PayPay\OpenPaymentAPI\Models\CreateQrCodePayload;
@@ -21,7 +22,25 @@ class CreateQrCode
      */
     public function __invoke(): array
     {
-        return PayPay::code()->createQRCode($this->payload());
+        try {
+            $payload = $this->payload();
+            // ログにペイロードを記録
+            Log::info('PayPay API Request Payload: ', ['payload' => $payload]);
+
+            $response = PayPay::code()->createQRCode($payload);
+            // ログにAPIレスポンスを記録
+            Log::info('PayPay API Response: ', ['response' => $response]);
+
+            return $response;
+        } catch (\Exception $e) {
+            // エラー発生時のログ
+            Log::error('PayPay API Error: ', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            throw $e; // エラーを再スロー
+        }
     }
 
     /**
@@ -35,20 +54,19 @@ class CreateQrCode
 
         $itemsWithDefaults = $items->map(function ($item) {
             $category = $item['category'] ?? [];
-        
+
             // category が空の場合、デフォルト値を設定
             if (is_array($category) && !empty($category)) {
                 $categoryValues = implode(',', collect($category)->pluck('value')->toArray());
             } else {
                 $categoryValues = 'Other'; // デフォルト値
             }
-        
+
             return array_merge($item, [
                 'category' => $categoryValues,
                 'quantity' => $item['quantity'] ?? 1, // デフォルトの数量
             ]);
         });
-        
 
         $payload = $this->createQrCodePayload();
 
