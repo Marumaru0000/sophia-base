@@ -21,12 +21,6 @@ class PayPay
      */
     public function redirect(): mixed
     {
-        // セッションに支払い方法が設定されていない場合エラー
-        if (empty(session('payment_method'))) {
-            return back()->with('payment_redirect_error', '支払い方法を選択してください。');
-        }
-
-        // PayPayリダイレクト処理
         $response = rescue(app(CreateQrCode::class), []);
 
         if (Arr::has($response, 'data.url')) {
@@ -42,7 +36,6 @@ class PayPay
             config('ordering.payment.paypay.redirect_error')
         );
     }
-
 
     /**
      * @param  string  $merchantPaymentId

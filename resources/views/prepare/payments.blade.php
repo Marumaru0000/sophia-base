@@ -1,15 +1,13 @@
 <div class="p-3 m-6 text-center rounded-md border-2 border-primary-500">
     <h3 class="text-2xl">{{ __('支払い方法') }}</h3>
 
-    {{-- エラーメッセージを表示 --}}
-    @if(session()->has('error'))
-        <div class="text-red-500 font-bold">
-            {{ session('error') }}
+    @if(session()->has('payment_redirect_error'))
+        <div class="font-bold">
+            {{ session('payment_redirect_error') }}
         </div>
     @endif
 
     <div class="flex flex-col items-start">
-        {{-- 支払い方法を一覧表示 --}}
         @foreach($payments as $method => $name)
             <label class="inline-flex items-center p-3">
                 <input type="radio"
@@ -21,7 +19,6 @@
             </label>
         @endforeach
 
-        {{-- PayPayの場合の注意メッセージ --}}
         @if($payment_method === 'paypay')
             <div>
                 {{ config('ordering.payment.paypay.prepare_message') }}

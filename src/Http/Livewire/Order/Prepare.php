@@ -84,17 +84,7 @@ class Prepare extends Component
      */
     public function redirectTo()
     {
-        // 支払い方法をセッションに保存
-        session(['payment_method' => $this->payment_method]);
-
-        // 未選択の場合エラーを返す
-        if (empty(session('payment_method'))) {
-            session()->flash('error', '支払い方法を選択してください。');
-            return redirect()->back();
-        }
-
-        // 正常時の処理
-        return Payment::driver(session('payment_method'))->redirect();
+        return Payment::driver($this->payment_method)->redirect();
     }
 
     public function render()
@@ -104,4 +94,4 @@ class Prepare extends Component
             'ordering::livewire.order.prepare',
         ]);
     }
-}
+} 
