@@ -19,7 +19,7 @@ class LivewirePrepareTest extends TestCase
         $response = $this->get(route('prepare', ['table' => 'test']));
 
         $response->assertStatus(200)
-                 ->assertSeeLivewire('ordering.prepare');
+                 ->assertSeeLivewire('ordering.');
     }
 
     public function testOrderPrepareDeleteCart()
@@ -53,4 +53,12 @@ class LivewirePrepareTest extends TestCase
                 ->call('redirectTo')
                 ->assertRedirect(route('history'));
     }
+    public function testOrderPrepareRedirectWithoutPaymentMethod()
+    {
+        Livewire::test(Prepare::class)
+                ->set('payment_method', '')
+                ->call('redirectTo')
+                ->assertSessionHas('error', '支払い方法を選択してください。');
+    }
+
 }

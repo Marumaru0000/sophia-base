@@ -5,7 +5,7 @@
 </span>
 
     <x-ordering::button wire:click="redirectTo"
-                        :disabled="empty(session('cart'))"
+                        :disabled="empty($payment_method)"
                         wire:loading.attr="disabled">
         {{ __('注文を確定して支払いに進む') }}
     </x-ordering::button>
