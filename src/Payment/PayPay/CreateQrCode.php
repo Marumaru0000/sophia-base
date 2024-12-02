@@ -21,12 +21,7 @@ class CreateQrCode
      */
     public function __invoke(): array
     {
-        $response = PayPay::code()->createQRCode($this->payload());
-
-        // QRコード生成後のレスポンスをログに記録
-        \Log::info('PayPay QR Code Response:', $response);
-
-        return $response;
+        return PayPay::code()->createQRCode($this->payload());
     }
 
     /**
@@ -38,6 +33,23 @@ class CreateQrCode
     {
         $items = Cart::items();
 
+        $itemsWithDefaults = $items->map(function ($item) {
+            $category = $item['category'] ?? [];
+        
+            // category が空の場合、デフォルト値を設定
+            if (is_array($category) && !empty($category)) {
+                $categoryValues = implode(',', collect($category)->pluck('value')->toArray());
+            } else {
+                $categoryValues = 'Other'; // デフォルト値
+            }
+        
+            return array_merge($item, [
+                'category' => $categoryValues,
+                'quantity' => $item['quantity'] ?? 1, // デフォルトの数量
+            ]);
+        });
+        
+
         $payload = $this->createQrCodePayload();
 
         $payload->setAmount([
@@ -45,15 +57,11 @@ class CreateQrCode
             'currency' => config('paypay.currency', 'JPY'),
         ]);
 
-        // OrderItemsは省略可
         $payload->setOrderItems(
-            $items->map(app(CreateOrderItem::class))->toArray()
+            $itemsWithDefaults->map(app(CreateOrderItem::class))->toArray()
         );
 
         $payload->setOrderDescription(config('ordering.payment.paypay.order_description', ' '));
-
-        // ペイロード内容をログに記録
-        \Log::info('PayPay QR Code Payload:', $payload->toArray());
 
         return $payload;
     }
