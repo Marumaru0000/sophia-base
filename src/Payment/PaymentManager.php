@@ -15,7 +15,7 @@ class PaymentManager extends Manager implements PaymentFactory
      */
     public function getDefaultDriver()
     {
-        return 'cash';
+        return 'paypay';
     }
 
     /**

@@ -28,7 +28,7 @@ class Prepare extends Component
     /**
      * @var string
      */
-    public string $payment_method = 'cash';
+    public string $payment_method = 'paypay';
 
     public function mount()
     {
@@ -84,6 +84,11 @@ class Prepare extends Component
      */
     public function redirectTo()
     {
+        if (empty($this->payment_method)) {
+            session()->flash('payment_redirect_error', '支払い方法を選択してください。');
+            return;
+        }
+
         return Payment::driver($this->payment_method)->redirect();
     }
 
