@@ -1,4 +1,4 @@
-@props(['item'])
+@props(['item', 'context' => 'order'])
 
 <div {{ $attributes->merge(['class' => 'm-3 p-3 rounded shadow-lg flex justify-between dark:bg-gray-800']) }}>
     <div>
@@ -6,9 +6,18 @@
         <div>{{ $item['description'] ?? '説明がありません' }}</div>
         <span>{{ $item['price'] ?? 0 }}円</span>
         @if($item['is_available'] ?? false)
-            <x-ordering::button wire:click="addCart('{{ $item['id'] }}')">
-                {{ __('追加') }}
-            </x-ordering::button>
+            @if($context === 'order')
+                <x-ordering::button wire:click="addCart('{{ $item['id'] }}')">
+                    {{ __('追加') }}
+                </x-ordering::button>
+            @elseif($context === 'prepare')
+                {{-- prepare ページでは何もしない --}}
+            @elseif($context === 'history')
+                <div>
+                    <input type="checkbox" wire:model="selectedItems" value="{{ $item['id'] }}">
+                    {{ __('受け取りを選択') }}
+                </div>
+            @endif
         @else
             <x-ordering::button :disabled="true">
                 {{ __('売り切れ') }}
@@ -22,7 +31,6 @@
         @endif
     </div>
     <div>
-    <x-ordering::image :src="$item['image'] ?? config('ordering.menu.no_image')"></x-ordering::image>
-
+        <x-ordering::image :src="$item['image'] ?? config('ordering.menu.no_image')"></x-ordering::image>
     </div>
 </div>

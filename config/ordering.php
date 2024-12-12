@@ -112,7 +112,7 @@ return [
         'limit' => env('ORDERING_HISTORY_LIMIT', 100),
 
         //注文履歴の削除機能
-        'delete' => env('ORDERING_HISTORY_DELETE', false),
+        'delete' => true,
     ],
 
     /**

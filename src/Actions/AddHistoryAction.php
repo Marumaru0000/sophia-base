@@ -5,18 +5,19 @@ declare(strict_types=1);
 namespace Revolution\Ordering\Actions;
 
 use Revolution\Ordering\Contracts\Actions\AddHistory;
+use Revolution\Ordering\Facades\Menu;
 
 class AddHistoryAction implements AddHistory
 {
-    /**
-     * @inheritDoc
-     */
     public function add(array $history): void
     {
-        $histories = collect(session('history', []));
+        $menus = collect(Menu::get());
 
-        $histories = $histories->prepend($history)
-                               ->take(config('ordering.history.limit', 100));
+        $history['items'] = collect($history['items'] ?? [])->map(function ($itemId) use ($menus) {
+            return $menus->firstWhere('id', $itemId) ?? ['id' => $itemId, 'name' => '不明な商品', 'price' => 0];
+        })->toArray();
+
+        $histories = collect(session('history', []))->prepend($history)->take(config('ordering.history.limit', 100));
 
         session(['history' => $histories->toArray()]);
     }

@@ -48,8 +48,11 @@ class Prepare extends Component
     // Menusコンポーネントと同様にAPIを使ってデータを取得
     $client = new Client();
     $response = $client->get(env('ORDERING_MICROCMS_ENDPOINT'), [
-        'headers' => ['X-API-KEY' => env('ORDERING_MICROCMS_API_KEY')]
-    ]);
+        'headers' => ['X-API-KEY' => env('ORDERING_MICROCMS_API_KEY')],
+        'query' => [
+            'limit' => config('ordering.menu.micro-cms.limit')
+        ]
+    ]);    
     $data = json_decode($response->getBody()->getContents(), true);
     return collect($data['contents'] ?? []);
     }

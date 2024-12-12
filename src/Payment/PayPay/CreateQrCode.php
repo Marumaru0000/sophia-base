@@ -49,40 +49,46 @@ class CreateQrCode
      * @throws ModelException
      */
     protected function payload(): CreateQrCodePayload
-    {
-        $items = Cart::items();
+{
+    $items = Cart::items();
 
-        $itemsWithDefaults = $items->map(function ($item) {
-            $category = $item['category'] ?? [];
-
-            // category が空の場合、デフォルト値を設定
-            if (is_array($category) && !empty($category)) {
-                $categoryValues = implode(',', collect($category)->pluck('value')->toArray());
-            } else {
-                $categoryValues = 'Other'; // デフォルト値
-            }
-
-            return array_merge($item, [
-                'category' => $categoryValues,
-                'quantity' => $item['quantity'] ?? 1, // デフォルトの数量
-            ]);
-        });
-
-        $payload = $this->createQrCodePayload();
-
-        $payload->setAmount([
-            'amount' => $items->sum('price'),
-            'currency' => config('paypay.currency', 'JPY'),
-        ]);
-
-        $payload->setOrderItems(
-            $itemsWithDefaults->map(app(CreateOrderItem::class))->toArray()
-        );
-
-        $payload->setOrderDescription(config('ordering.payment.paypay.order_description', ' '));
-
-        return $payload;
+    if ($items->isEmpty()) {
+        throw new \Exception('Cart is empty, cannot create QR code.');
     }
+
+    // デフォルト値を持つアイテムの生成
+    $itemsWithDefaults = $items->map(function ($item) {
+        $category = $item['category'] ?? [];
+
+        // category が空の場合、デフォルト値を設定
+        if (is_array($category) && !empty($category)) {
+            $categoryValues = implode(',', collect($category)->pluck('value')->toArray());
+        } else {
+            $categoryValues = 'Unknown'; // デフォルト値
+        }
+
+        return array_merge($item, [
+            'category' => $categoryValues,
+            'quantity' => $item['quantity'] ?? 1, // デフォルトの数量
+        ]);
+    });
+
+    // QRコードペイロードの作成
+    $payload = $this->createQrCodePayload();
+
+    $payload->setAmount([
+        'amount' => $items->sum('price'),
+        'currency' => config('paypay.currency', 'JPY'),
+    ]);
+
+    $payload->setOrderItems(
+        $itemsWithDefaults->map(app(CreateOrderItem::class))->toArray()
+    );
+
+    $payload->setOrderDescription(config('ordering.payment.paypay.order_description', ' '));
+
+    return $payload;
+}
 
     /**
      * @return CreateQrCodePayload
