@@ -122,5 +122,33 @@ public function testHistoryItemsAreDisplayedCorrectly()
         ->assertSee('500円')
         ->assertSee('700円');
 }
+public function testHistoryItemsAreMappedCorrectly()
+{
+    $menus = [
+        ['id' => 'item1', 'name' => 'メニュー1', 'price' => 500, 'description' => '美味しい料理', 'image' => '/path/to/image1.jpg'],
+        ['id' => 'item2', 'name' => 'メニュー2', 'price' => 700, 'description' => 'さらに美味しい料理', 'image' => '/path/to/image2.jpg'],
+    ];
+
+    // MicroCMS APIのモック
+    Menu::shouldReceive('get')->andReturn(collect($menus));
+
+    $this->withSession([
+        'history' => [
+            [
+                'items' => ['item1', 'item2'],
+            ],
+        ],
+    ]);
+
+    Livewire::test(History::class)
+        ->assertSee('メニュー1')
+        ->assertSee('500円')
+        ->assertSee('美味しい料理')
+        ->assertSee('/path/to/image1.jpg')
+        ->assertSee('メニュー2')
+        ->assertSee('700円')
+        ->assertSee('さらに美味しい料理')
+        ->assertSee('/path/to/image2.jpg');
+}
 
 } 
