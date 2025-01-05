@@ -44,8 +44,12 @@ class History extends Component
     $menus = $this->getMenus();
     $items = is_array($history['items'] ?? null) ? $history['items'] : [];
 
-    $history['items'] = collect($items)->map(function ($itemId) use ($menus) {
+    $history['items'] = collect($items)->map(function ($item) use ($menus) {
+        // itemがオブジェクト形式の場合はidキーを取り出す
+        $itemId = is_array($item) && isset($item['id']) ? $item['id'] : $item;
+
         $menu = $menus->firstWhere('id', $itemId);
+
         if (!$menu) {
             Log::warning('Item not found in menus', ['item_id' => $itemId, 'menus' => $menus->pluck('id')]);
             return [
@@ -57,6 +61,7 @@ class History extends Component
                 'is_available' => false,
             ];
         }
+
         return $menu;
     })->toArray();
 
@@ -105,20 +110,19 @@ private function getMenus(): Collection
 }
 
 
-    public function deleteSelectedItems()
+public function deleteSelectedItems()
 {
     Log::info('Selected Items:', ['selectedItems' => $this->selectedItems]);
 
-    $selectedItemIds = $this->selectedItems; 
-    Log::info('Selected Item IDs:', ['selectedItemIds' => $selectedItemIds]);
+    $selectedItemIds = $this->selectedItems;
 
     $updatedHistories = collect(session('history', []))->map(function ($history) use ($selectedItemIds) {
+        // $history['items']が配列であることを確認
         if (isset($history['items']) && is_array($history['items'])) {
-            // $history['items']は単純なIDの配列として保存されているため、
-            // $itemは文字列ID。
             $history['items'] = collect($history['items'])->reject(function ($item) use ($selectedItemIds) {
-                // $itemは'item_id'のような文字列なのでそのまま比較。
-                return in_array($item, $selectedItemIds);
+                // $itemが配列ならIDを確認
+                $itemId = is_array($item) ? ($item['id'] ?? null) : $item;
+                return in_array($itemId, $selectedItemIds, true);
             })->values()->toArray();
         }
         return $history;
