@@ -1,4 +1,4 @@
-@props(['item', 'context' => 'order'])
+@props(['item', 'context' => 'order', 'index' => null])
 
 <div {{ $attributes->merge(['class' => 'm-3 p-3 rounded shadow-lg flex justify-between dark:bg-gray-800']) }}>
     <div>
@@ -11,7 +11,11 @@
                     {{ __('追加') }}
                 </x-ordering::button>
             @elseif($context === 'prepare')
-                {{-- prepare ページでは何もしない --}}
+                <div class="mt-3">
+                    <x-ordering::button wire:click="deleteCart({{ $index }})">
+                        {{ __('削除') }}
+                    </x-ordering::button>
+                </div>
             @elseif($context === 'history')
                 <div>
                     <input type="checkbox" wire:model="selectedItems" value="{{ $item['id'] }}">

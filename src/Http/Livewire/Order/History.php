@@ -16,7 +16,17 @@ use Illuminate\Support\Facades\Log;
 class History extends Component
 {
     public array $selectedItems = [];
+    public string $currentTime = '';
+    public bool $isConfirmationModalVisible = false;
+    public function mount()
+{
+    $this->currentTime = now()->format('H:i:s');
+}
 
+public function updateCurrentTime()
+{
+    $this->currentTime = now()->format('H:i:s');
+}
     /**
      * @var Collection
      */
@@ -95,18 +105,44 @@ private function getMenus(): Collection
 }
 
 
-    public function confirmReceipt()
+public function confirmReceipt()
 {
-    Log::info('Selected Items (before filter):', ['selectedItems' => $this->selectedItems]);
-
-    $selectedItemIds = $this->selectedItems;
-    if (empty($selectedItemIds)) {
-        session()->flash('message', '少なくとも1つの商品を選択してください。');
+    if (empty($this->selectedItems)) {
+        $this->isConfirmationModalVisible = true;
+        session()->flash('confirmation_data', [
+            'error' => '少なくとも1つの商品を選択してください。',
+        ]);
         return;
     }
 
-    // テストとして、直接deleteSelectedItems()を呼んでみる
-    $this->deleteSelectedItems();
+    // 選択されたアイテムを取得
+    $selectedItems = collect(session('history', []))->flatMap(function ($history) {
+        return collect($history['items'])->whereIn('id', $this->selectedItems);
+    })->toArray();
+
+    // 確認画面用データをセッションに保存
+    session()->flash('confirmation_data', [
+        'items' => $selectedItems,
+        'purchase_time' => now()->toDateTimeString(),
+    ]);
+    $this->isConfirmationModalVisible = true; // モーダル表示
+}
+
+public function showConfirmation(array $selectedItemIds)
+{
+    $this->selectedItems = $selectedItemIds;
+    $this->emit('showConfirmationModal'); // フロントエンドでモーダルを表示
+}
+public function getConfirmationDataProperty(): array
+{
+    $selectedItems = collect(session('history', []))->flatMap(function ($history) {
+        return collect($history['items'])->whereIn('id', $this->selectedItems);
+    });
+
+    return [
+        'items' => $selectedItems->toArray(),
+        'purchase_time' => now()->toDateTimeString(),
+    ];
 }
 
 
@@ -135,6 +171,12 @@ public function deleteSelectedItems()
     $this->selectedItems = [];
     session()->flash('message', '選択された商品を受け取り済みにしました。');
 }
+public function closeConfirmationModal()
+{
+    $this->deleteSelectedItems(); // 選択アイテムを削除
+    $this->isConfirmationModalVisible = false; // モーダル非表示
+}
+
 
 
     public function deleteHistory(): void

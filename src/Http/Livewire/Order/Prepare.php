@@ -40,7 +40,7 @@ class Prepare extends Component
      */
     public function getItemsProperty(): Collection
     {
-    return Cart::items(Cart::all(), $this->getMenus());
+        return Cart::items(Cart::all(), $this->getMenus());
     }
 
     private function getMenus(): Collection
@@ -61,10 +61,12 @@ class Prepare extends Component
      *
      * @param  int  $index
      */
-    public function deleteCart(int $index)
+    public function deleteCart($index)
     {
+        $index = (int) $index; // 明示的に整数にキャスト
         Cart::delete($index);
     }
+
 
     /**
      * @return RedirectResponse|Redirector
