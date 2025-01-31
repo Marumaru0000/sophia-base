@@ -51,30 +51,6 @@ public function updateCurrentTime()
      */
     public function replaceHistoryItems(array $history): array
 {
-    $menus = $this->getMenus();
-    $items = is_array($history['items'] ?? null) ? $history['items'] : [];
-
-    $history['items'] = collect($items)->map(function ($item) use ($menus) {
-        // itemがオブジェクト形式の場合はidキーを取り出す
-        $itemId = is_array($item) && isset($item['id']) ? $item['id'] : $item;
-
-        $menu = $menus->firstWhere('id', $itemId);
-
-        if (!$menu) {
-            Log::warning('Item not found in menus', ['item_id' => $itemId, 'menus' => $menus->pluck('id')]);
-            return [
-                'id' => $itemId,
-                'name' => '不明な商品',
-                'price' => 0,
-                'description' => '説明がありません',
-                'image' => config('ordering.menu.no_image'),
-                'is_available' => false,
-            ];
-        }
-
-        return $menu;
-    })->toArray();
-
     return $history;
 }
 

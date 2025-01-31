@@ -21,9 +21,13 @@ class OrderAction implements Order
      */
     public function order(array $options = null): void
     {
-        $items = Cart::all();
+        // カートの最終状態（オプション込み）を取得
+        // -> ここで「不明商品」にならないよう、Cart::items() でメニュー名やオプションを反映した情報を取得する
+        $items = Cart::items()->toArray();
+
         $memo = session('memo');
 
+        // カートをリセットする前に $items を確保しておく
         app(ResetCart::class)->reset();
 
         if (empty($items)) {
@@ -31,28 +35,30 @@ class OrderAction implements Order
         }
 
         $order_id = $options['order_id'] ?? app(OrderId::class)->create();
-
         $date = now()->toDateTimeString();
 
-        $payment = app(PaymentMethodFactory::class)
-            ->name(Arr::get($options, 'payment', 'cash'));
+        // 支払い方法
+        $payment = app(PaymentMethodFactory::class)->name($options['payment'] ?? 'cash');
 
-        app(AddHistory::class)->add(compact([
-            'order_id',
-            'date',
-            'items',
-            'memo',
-            'payment',
-        ]));
+        // 履歴へ保存 (AddHistoryAction)
+        app(AddHistory::class)->add([
+            'order_id' => $order_id,
+            'date'     => $date,
+            'items'    => $items,  // <= ここが最終的なアイテム配列
+            'memo'     => $memo,
+            'payment'  => $payment,
+        ]);
 
+        // もしイベントを飛ばす必要がある場合はお好みで
         OrderEntry::dispatch(
             $order_id,
-            Cart::items($items)->toArray(),
+            $items,  // 既に merged済みのアイテム情報を引き渡す
             null,
             $memo,
             $options,
         );
 
+        // フラッシュメッセージなど
         session()->flash('order_completed_message', config('ordering.shop.order_completed_message'));
     }
 }

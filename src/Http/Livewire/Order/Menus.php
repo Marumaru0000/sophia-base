@@ -12,8 +12,8 @@ use Livewire\Redirector;
 use Revolution\Ordering\Contracts\Actions\AddCart;
 use Revolution\Ordering\Contracts\Actions\ResetCart;
 use Revolution\Ordering\Facades\Cart;
+use GuzzleHttp\Client;
 use Revolution\Ordering\Facades\Menu;
-use GuzzleHttp\Client; // ← これを追加
 
 class Menus extends Component
 {
@@ -31,13 +31,12 @@ class Menus extends Component
         $response = $client->get(env('ORDERING_MICROCMS_ENDPOINT'), [
             'headers' => ['X-API-KEY' => env('ORDERING_MICROCMS_API_KEY')],
             'query' => [
-                'limit' => config('ordering.menu.micro-cms.limit')
+                'limit' => config('ordering.menu.micro-cms.limit'),
             ]
-        ]);        
+        ]);
 
-        // getContentsを使用して、レスポンスボディを文字列として取得
         $data = json_decode($response->getBody()->getContents(), true);
-        // データを整形してmenusプロパティに格納
+
         if (!empty($data['contents'])) {
             $this->menus = collect($data['contents'])->map(function ($item) {
                 return [
@@ -47,11 +46,16 @@ class Menus extends Component
                     'description' => $item['description'] ?? '',
                     'image' => $item['image']['url'] ?? config('ordering.menu.no_image'),
                     'is_available' => $item['is_available'] ?? false,
-                    'category' => $item['category'] ?? '未分類',
+                    'category' => $item['category'] ?? ['未分類'],
+
+                    // ここでライス・麺のオプションも格納
                     'options' => [
-                        'rice' => $item['rice_options'] ?? null,
-                        'noodle' => $item['noodle_options'] ?? null,
-                    ]
+                        'rice' => $item['rice_options'] ?? null,    // "ライス大盛り"など
+                        'noodle' => $item['noodle_options'] ?? null, // "麺大盛り"など
+                    ],
+
+                    // ★ 変更点: 後からユーザが選択したオプションを格納するためのフィールド
+                    'selected_option' => null,
                 ];
             });
         } else {
@@ -60,24 +64,24 @@ class Menus extends Component
     }
 
     /**
-     * @return Collection
+     * カートアイテム表示用
      */
     public function getItemsProperty(): Collection
     {
-    return Cart::items(Cart::all(), $this->getMenus());
+        return Cart::items(Cart::all(), $this->getMenus());
     }
+
     private function getMenus(): Collection
     {
-    // Menusコンポーネントと同様にAPIを使ってデータを取得
-    $client = new Client();
-    $response = $client->get(env('ORDERING_MICROCMS_ENDPOINT'), [
-        'headers' => ['X-API-KEY' => env('ORDERING_MICROCMS_API_KEY')],
-        'query' => [
-            'limit' => config('ordering.menu.micro-cms.limit')
-        ]
-    ]);    
-    $data = json_decode($response->getBody()->getContents(), true);
-    return collect($data['contents'] ?? []);
+        $client = new Client();
+        $response = $client->get(env('ORDERING_MICROCMS_ENDPOINT'), [
+            'headers' => ['X-API-KEY' => env('ORDERING_MICROCMS_API_KEY')],
+            'query' => [
+                'limit' => config('ordering.menu.micro-cms.limit'),
+            ]
+        ]);
+        $data = json_decode($response->getBody()->getContents(), true);
+        return collect($data['contents'] ?? []);
     }
 
     /**

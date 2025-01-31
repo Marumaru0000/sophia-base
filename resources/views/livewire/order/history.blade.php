@@ -1,3 +1,7 @@
+@php
+use Illuminate\Support\Arr;
+@endphp
+
 <div class="mx-auto pb-40">
     @include('ordering::order.header')
 
@@ -20,18 +24,43 @@
         </div>
     @endif
 
+    {{-- 履歴をループ表示 --}}
     @foreach($this->histories as $history)
-        <div class="m-3 p-3 rounded-md border-2 border-primary-500">
-            <div class="text-center">
-                <h3 class="text-2xl p-1">{{ __('注文番号：') }}{{ Arr::get($history, 'order_id') }}</h3>
-                <div class="text-xl p-1">{{ Arr::get($history, 'date') }}</div>
-                <div class="p-3 font-bold">
-                    {{ __('合計') }}{{ collect(Arr::get($history, 'items'))->sum('price') }}{{ __('円') }}
-                </div>
-                <div>{{ Arr::get($history, 'memo') }}</div>
-            </div>
+        <div class="border p-3 mb-3">
+            <h3>注文番号: {{ Arr::get($history, 'order_id') }}</h3>
+            <p>日時: {{ Arr::get($history, 'date') }}</p>
+
             @foreach(Arr::get($history, 'items', []) as $item)
-                <x-ordering::item-card :item="$item" context="history"></x-ordering::item-card>
+                <div class="my-2 p-2 border-b">
+                <strong>
+                    {{ $item['name'] }}
+                    @if(!empty($item['selected_option']))
+                        ({{ $item['selected_option'] }})
+                    @endif
+                    （{{ $item['price'] }}円）
+                </strong>
+                    @if(!empty($item['image']))
+                        <div class="mt-1">
+                            <x-ordering::image :src="$item['image'] ?? config('ordering.menu.no_image')"/>
+                        </div>
+                    @endif
+                    {{-- ★受け取りチェックボックス★ --}}
+                    @if(config('ordering.history.delete', false))
+                        <div class="mt-2">
+                        <input type="checkbox" wire:model="selectedItems" value="{{ is_array($item['id']) ? json_encode($item['id']) : $item['id'] }}">
+                            <label>受け取りを選択</label>
+                        </div>
+                    @endif
+
+                    @php
+                        $categories = is_array(Arr::get($item, 'category', []))
+                            ? Arr::get($item, 'category', [])
+                            : [];
+                    @endphp
+                    @if(!empty($item['selected_option']))
+                        ({{ $item['selected_option'] }})
+                    @endif
+                </div>
             @endforeach
         </div>
     @endforeach
@@ -46,18 +75,24 @@
         </div>
     @endif
 
+    {{-- 受け取り確認用モーダル --}}
     @if ($isConfirmationModalVisible)
         <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div class="animated-confirmation bg-white p-6 rounded-lg shadow-lg w-96 text-center">
-                <h2 class="text-xl font-bold mb-4 moving-text">受け取り確認中...</h2>
+                <h2 class="text-xl font-bold mb-4 moving-text">この画面を見せて商品を受け取ってください</h2>
                 @if(isset(session('confirmation_data')['error']))
                     <p class="text-red-500">{{ session('confirmation_data')['error'] }}</p>
                 @else
-                    <p class="mb-2">以下の商品を受け取りました：</p>
+                    <p class="mb-2">以下の商品を受け取ります：</p>
                     <ul class="text-left mb-4">
-                        @foreach(session('confirmation_data')['items'] as $item)
-                            <li class="font-bold">{{ $item['name'] }}</li>
-                        @endforeach
+                    @foreach(session('confirmation_data')['items'] as $item)
+                        <li class="font-bold">
+                            {{ $item['name'] }}
+                            @if(!empty($item['selected_option']))
+                                ({{ $item['selected_option'] }})
+                            @endif
+                        </li>
+                    @endforeach
                     </ul>
                     <p class="text-sm">購入日時: <strong>{{ session('confirmation_data')['purchase_time'] }}</strong></p>
                     <div id="random-symbols" class="text-2xl font-bold"></div>
