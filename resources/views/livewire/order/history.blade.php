@@ -27,41 +27,30 @@ use Illuminate\Support\Arr;
     {{-- 履歴をループ表示 --}}
     @foreach($this->histories as $history)
         <div class="border p-3 mb-3">
-            <h3>注文番号: {{ Arr::get($history, 'order_id') }}</h3>
-            <p>日時: {{ Arr::get($history, 'date') }}</p>
+            <h3>注文番号: {{ $history['order_id'] }}</h3>
+            <p>日時: {{ $history['purchase_time'] }}</p>
 
-            @foreach(Arr::get($history, 'items', []) as $item)
-                <div class="my-2 p-2 border-b">
-                <strong>
-                    {{ $item['name'] }}
-                    @if(!empty($item['selected_option']))
-                        ({{ $item['selected_option'] }})
-                    @endif
-                    （{{ $item['price'] }}円）
-                </strong>
-                    @if(!empty($item['image']))
-                        <div class="mt-1">
-                            <x-ordering::image :src="$item['image'] ?? config('ordering.menu.no_image')"/>
-                        </div>
-                    @endif
-                    {{-- ★受け取りチェックボックス★ --}}
-                    @if(config('ordering.history.delete', false))
-                        <div class="mt-2">
-                        <input type="checkbox" wire:model="selectedItems" value="{{ is_array($item['id']) ? json_encode($item['id']) : $item['id'] }}">
-                            <label>受け取りを選択</label>
-                        </div>
-                    @endif
+            <div class="my-2 p-2 border-b">
+                <strong>{{ $history['item_name'] }}</strong>（{{ $history['price'] }}円）
+                @if(!empty($history['selected_option']))
+                    ({{ $history['selected_option'] }})
+                @endif
 
-                    @php
-                        $categories = is_array(Arr::get($item, 'category', []))
-                            ? Arr::get($item, 'category', [])
-                            : [];
-                    @endphp
-                    @if(!empty($item['selected_option']))
-                        ({{ $item['selected_option'] }})
-                    @endif
-                </div>
-            @endforeach
+                {{-- 商品画像表示 --}}
+                @if(!empty($history['image']))
+                    <div class="mt-1">
+                        <x-ordering::image :src="$history['image'] ?? config('ordering.menu.no_image')"/>
+                    </div>
+                @endif
+
+                {{-- ★受け取りチェックボックス★ --}}
+                @if(config('ordering.history.delete', false))
+                    <div class="mt-2">
+                        <input type="checkbox" wire:model="selectedItems" value="{{ $history['id'] }}">
+                        <label>受け取りを選択</label>
+                    </div>
+                @endif
+            </div>
         </div>
     @endforeach
 
@@ -85,14 +74,14 @@ use Illuminate\Support\Arr;
                 @else
                     <p class="mb-2">以下の商品を受け取ります：</p>
                     <ul class="text-left mb-4">
-                    @foreach(session('confirmation_data')['items'] as $item)
-                        <li class="font-bold">
-                            {{ $item['name'] }}
-                            @if(!empty($item['selected_option']))
-                                ({{ $item['selected_option'] }})
-                            @endif
-                        </li>
-                    @endforeach
+                        @foreach(session('confirmation_data')['items'] as $item)
+                            <li class="font-bold">
+                                {{ $item['item_name'] }}
+                                @if(!empty($item['selected_option']))
+                                    ({{ $item['selected_option'] }})
+                                @endif
+                            </li>
+                        @endforeach
                     </ul>
                     <p class="text-sm">購入日時: <strong>{{ session('confirmation_data')['purchase_time'] }}</strong></p>
                     <div id="random-symbols" class="text-2xl font-bold"></div>
@@ -110,18 +99,23 @@ use Illuminate\Support\Arr;
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // ランダムシンボルの動作
-        const symbols = ['★', '●', '▲', '■'];
-        const container = document.getElementById('random-symbols');
-        setInterval(() => {
-            container.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-        }, 500);
+    const container = document.getElementById('random-symbols'); // ← ここで宣言
 
-        // 現在時刻の更新
-        const timeElement = document.getElementById('current-time');
-        setInterval(() => {
-            const now = new Date();
-            timeElement.textContent = now.toLocaleTimeString('ja-JP');
-        }, 1000);
-    });
+    if (!container) return;
+
+    // ランダムシンボルの動作
+    const symbols = ['★', '●', '▲', '■'];
+    setInterval(() => {
+        container.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    }, 500);
+
+    // 現在時刻の更新
+    const timeElement = document.getElementById('current-time');
+    if (!timeElement) return;
+    
+    setInterval(() => {
+        const now = new Date();
+        timeElement.textContent = now.toLocaleTimeString('ja-JP');
+    }, 1000);
+});
 </script>

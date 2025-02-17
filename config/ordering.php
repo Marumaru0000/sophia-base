@@ -113,6 +113,12 @@ return [
 
         //注文履歴の削除機能
         'delete' => true,
+
+        'airtable' => [
+            'api_key' => env('AIRTABLE_API_KEY'),
+            'base_id' => env('AIRTABLE_BASE_ID'),
+            'table_name' => env('AIRTABLE_TABLE_NAME'),
+        ]
     ],
 
     /**
