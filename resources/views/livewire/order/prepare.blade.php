@@ -1,8 +1,12 @@
 <div class="mx-auto pb-40">
-    {{-- 例: 既存のヘッダー --}}
     @include('ordering::order.header')
 
-    <h2 class="text-2xl font-bold my-4 px-3">注文内容の確認</h2>
+    <div class="p-3 m-6 text-center">
+        <h2 class="text-3xl">{{ __('注文の確認') }}</h2>
+        @unless(config('ordering.payment.enabled'))
+            <div class="font-bold">{{ config('ordering.shop.disabled_pay_message') }}</div>
+        @endunless
+    </div>
 
     {{-- カートアイテム一覧 --}}
     @foreach($this->items as $index => $item)
@@ -53,11 +57,9 @@
         </div>
     @endforeach
 
-    {{-- メモ欄や支払い選択など、既存UI --}}
-    <div class="p-3">
-        <label>メモ</label>
-        <textarea wire:model.defer="memo" class="border rounded w-full h-20"></textarea>
-    </div>
+    @if(config('ordering.payment.enabled'))
+        @include('ordering::prepare.payments')
+    @endif
 
     {{-- フッター (合計や支払いボタン) --}}
     @include('ordering::prepare.footer')
