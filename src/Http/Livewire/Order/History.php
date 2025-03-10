@@ -72,14 +72,11 @@ public function updateCurrentTime()
     }
 
     $records = $response->json()['records'] ?? [];
-
-    // メニュー情報を取得
     $menus = $this->getMenus();
 
     return collect($records)->map(function ($record) use ($menus) {
         $menu = $menus->firstWhere('id', $record['fields']['item_id']) ?? [];
         $image = $menu['image'] ?? config('ordering.menu.no_image');
-
         return [
             'id' => $record['id'],
             'order_id' => $record['fields']['order_id'] ?? '',
@@ -91,9 +88,9 @@ public function updateCurrentTime()
             'purchase_time' => $record['fields']['purchase_time'] ?? '',
             'status' => $record['fields']['status'] ?? '未受取',
             'payment_method' => $record['fields']['payment_method'] ?? 'PayPay',
-            'image' => $image, // 画像を追加
+            'image' => $image,
         ];
-    });
+    })->filter(fn($history) => $history['status'] !== '受取済み'); // 受取済みの履歴を除外
 }
 
     /**
@@ -132,10 +129,8 @@ private function getMenus(): Collection
 public function confirmReceipt()
 {
     if (empty($this->selectedItems)) {
-        session()->flash('confirmation_data', [
-            'error' => '少なくとも1つの商品を選択してください。',
-        ]);
-        return;
+        session()->flash('message', '受け取りたい商品を選択してください。');
+        return; // モーダルを開かないように修正
     }
 
     // 選択された商品を取得
@@ -171,6 +166,11 @@ public function getConfirmationDataProperty(): array
 
 public function deleteSelectedItems()
 {
+    if (empty($this->selectedItems)) {
+        session()->flash('message', '受け取りたい商品を選択してください。');
+        return; // ここで処理を終了し、メッセージを適切に表示する
+    }
+
     $apiKey = env('AIRTABLE_API_KEY');
     $baseId = env('AIRTABLE_BASE_ID');
     $tableName = env('AIRTABLE_TABLE_NAME');
@@ -197,11 +197,11 @@ public function deleteSelectedItems()
 
     session()->flash('message', '選択された商品を受け取り済みにしました。');
 }
+
 private function updateHistory()
 {
-    // 受け取り済みの商品を除外して履歴を再取得
-    $this->histories = $this->getHistoriesProperty()->reject(function ($history) {
-        return $history['status'] === '受取済み';
+    $this->histories = $this->getHistoriesProperty()->filter(function ($history) {
+        return $history['status'] !== '受取済み';
     });
 }
 

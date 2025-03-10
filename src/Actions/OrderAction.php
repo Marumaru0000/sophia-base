@@ -35,18 +35,15 @@ class OrderAction implements Order
     $date = now()->toIso8601String();
     $payment = app(PaymentMethodFactory::class)->name($options['payment'] ?? 'cash');
 
-    // 顧客 ID（セッションに保存）
     if (!session()->has('customer_id')) {
         session(['customer_id' => uniqid('cust_', true)]);
     }
     $customerId = session('customer_id');
 
-    // Airtable API 情報
     $apiKey = env('AIRTABLE_API_KEY');
     $baseId = env('AIRTABLE_BASE_ID');
     $tableName = env('AIRTABLE_TABLE_NAME');
 
-    // Airtable にデータ送信
     $records = [];
     foreach ($items as $item) {
         $records[] = [
@@ -71,7 +68,6 @@ class OrderAction implements Order
         'Content-Type' => 'application/json',
     ])->post("https://api.airtable.com/v0/{$baseId}/{$tableName}", ['records' => $records]);
 
-    // Airtable API のレスポンスをログに記録
     Log::info('Airtable API Response:', [
         'response' => $response->json(),
         'status' => $response->status(),
@@ -85,15 +81,7 @@ class OrderAction implements Order
         return;
     }
 
-    // カートの履歴をローカル保存
-    app(AddHistory::class)->add([
-        'order_id' => $order_id,
-        'date'     => $date,
-        'items'    => $items,
-        'memo'     => $memo,
-        'payment'  => $payment,
-    ]);
-
+    // session に履歴を保存する処理を削除
     app(ResetCart::class)->reset();
     session()->flash('order_completed_message', config('ordering.shop.order_completed_message'));
 }
