@@ -6,33 +6,6 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/789874bd174d23ea7fb5/maintainability)](https://codeclimate.com/github/kawax/self-ordering/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/789874bd174d23ea7fb5/test_coverage)](https://codeclimate.com/github/kawax/self-ordering/test_coverage)
 
-オープンソースのセルフオーダーシステム
-
-![screenshot_1](./docs/screenshot_1.png)
-
-## 目的
-スマホで注文するセルフオーダーの普及。
-
-## 定義
-- **セルフオーダー**：飲食店などの店内で、自分のスマホで注文。スマホアプリのインストールは不要。
-- モバイルオーダー：スマホアプリをインストールして注文。
-
-ここで定義してるセルフオーダーをテーブルオーダーと呼ぶこともあるし、店舗側で用意しているタブレットでの注文をセルフオーダーと呼ぶこともある。  
-言葉の定義は世の中的にもまだ固まってないけどここで提供するのはWebシステム一つで実現できるセルフオーダー。  
-スマホのカメラでQRコードを読み込んで、スマホのブラウザで注文システムを表示。アプリのインストールや会員登録は不要。
-
-## 概要
-- 1店舗1システムで動かす。
-- 店舗ごとにカスタマイズして使う前提。
-- 商用利用可能。開発・設置・運用代行をビジネスにして良い。
-- デフォルトでは決済やPOS連携機能は含めない。拡張はできるので必要なら個別に対応。
-- Vercelで動かしやすいようにデータベースなしでの運用も可能にする。
-- バージョンアップしやすいようにLaravel用のcomposerパッケージとして作る。Laravelアプリとしては作らない。ほとんどの機能はパッケージ内に含めるのでLaravel側での開発作業は少なめ。
-
-## デモ
-- https://self-ordering-starter.vercel.app/order
-- https://self-ordering-sample.vercel.app/order
-
 ## 動作環境
 - PHP ^8.2
 - Laravel ^11.x
@@ -67,9 +40,6 @@ npm install && npm run build
 
 http://localhost/order
 
-簡単に始めるためのプロジェクトテンプレート。  
-https://github.com/kawax/self-ordering-starter
-
 ### .env
 ```
 ORDERING_MENU_DRIVER=array
@@ -99,10 +69,6 @@ Route::view('/', 'ordering::help');
 ## クイックスタート
 上記の手順でインストール後に必要なことは「メニューデータの管理方法」と「注文情報の送信先」
 を決める。
-
-### ここでの前提
-- 決済機能は使わない。
-- セルフオーダーは口頭での注文取りの代わり。
 
 ### メニューデータの管理方法
 店舗側でメニューを変更するなら [microCMS](https://microcms.io/) が一番簡単だろうからmicroCMSにアカウントを作って進める。
@@ -150,16 +116,6 @@ Route::view('/', 'ordering::help');
 - StyleCI(laravelプリセット)とPhpStorm(Laravelプリセット改)の自動フォーマットに合わせる。
 
 ### このパッケージのローカルでの開発方法
-
-レポジトリ2つをローカルにgit clone
-- https://github.com/kawax/self-ordering
-- https://github.com/kawax/self-ordering-starter
-
-```
-git clone https://github.com/kawax/self-ordering
-git clone https://github.com/kawax/self-ordering-starter self-ordering-develop
-cd ./self-ordering-develop
-```
 
 starter側のcomposer.jsonでローカルのパッケージを使うように指定。
 
