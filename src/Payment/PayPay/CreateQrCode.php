@@ -52,6 +52,8 @@ class CreateQrCode
 {
     $items = Cart::items();
 
+    Log::info('[PayPay] Raw Cart Items', $items->toArray());
+
     if ($items->isEmpty()) {
         throw new \Exception('Cart is empty, cannot create QR code.');
     }
@@ -60,7 +62,6 @@ class CreateQrCode
     $itemsWithDefaults = $items->map(function ($item) {
         $category = $item['category'] ?? [];
 
-        // category が空の場合、デフォルト値を設定
         if (is_array($category) && !empty($category)) {
             $categoryValues = implode(',', collect($category)->pluck('value')->toArray());
         } else {
@@ -69,26 +70,41 @@ class CreateQrCode
 
         return array_merge($item, [
             'category' => $categoryValues,
-            'quantity' => $item['quantity'] ?? 1, // デフォルトの数量
+            'quantity' => $item['quantity'] ?? 1,
         ]);
     });
+
+    Log::info('[PayPay] Items with Defaults', $itemsWithDefaults->toArray());
 
     // QRコードペイロードの作成
     $payload = $this->createQrCodePayload();
 
+    $amount = $items->sum('price');
+    Log::info('[PayPay] Total amount', ['amount' => $amount]);
+
     $payload->setAmount([
-        'amount' => $items->sum('price'),
+        'amount' => $amount,
         'currency' => config('paypay.currency', 'JPY'),
     ]);
 
-    $payload->setOrderItems(
-        $itemsWithDefaults->map(app(CreateOrderItem::class))->toArray()
-    );
+    $orderItems = $itemsWithDefaults->map(app(CreateOrderItem::class))->toArray();
 
-    $payload->setOrderDescription(config('ordering.payment.paypay.order_description', ' '));
+    Log::info('[PayPay] Order Items', $orderItems);
+
+    $payload->setOrderItems($orderItems);
+
+    $description = config('ordering.payment.paypay.order_description', ' ');
+    Log::info('[PayPay] Order Description', ['description' => $description]);
+
+    $payload->setOrderDescription($description);
+
+    Log::info('[PayPay] Final Payload Object', [
+        'payload' => json_decode(json_encode($payload), true)
+    ]);
 
     return $payload;
 }
+
 
     /**
      * @return CreateQrCodePayload

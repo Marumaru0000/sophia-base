@@ -10,6 +10,16 @@ export default {
         './resources/views/**/*.blade.php',
         './vendor/revolution/self-ordering/resources/views/**/*.blade.php',
     ],
+    safelist: [
+        'bg-blue-600',
+        'bg-green-600',
+        'text-white',
+        'bg-gray-200',
+        'text-gray-700',
+        'border-blue-800',
+        'border-gray-400',
+        'border-green-800',
+    ],
 
     theme: {
         extend: {
