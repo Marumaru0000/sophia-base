@@ -18,7 +18,7 @@ class LogoutAction implements Logout
     {
         LogoutEvent::dispatch($request);
 
-        return redirect()->route('dashboard')
+        return redirect()->route('admin.dashboard')
                          ->withoutCookie(config('ordering.cookie'));
     }
 }

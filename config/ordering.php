@@ -25,7 +25,7 @@ return [
         /**
          * "array", "micro-cms", "google-sheets", "contentful".
          */
-        'driver' => env('ORDERING_MENU_DRIVER', 'micro-cms'),
+        'driver' => env('ORDERING_MENU_DRIVER', 'array'),
 
         //メニューの画像が設定されてない時の画像。
         'no_image' => env('ORDERING_NO_IMAGE', '/images/food_menu.png'),
@@ -78,7 +78,6 @@ return [
 
         // 使用する支払い方法
         'methods' => [
-            // 'cash' => 'レジで後払い',
             'paypay' => 'PayPay',
 
             // 'custom-pay' => 'CustomPay'
@@ -125,8 +124,8 @@ return [
      * リダイレクト.
      */
     'redirect' => [
-        'from_menus' => env('ORDERING_REDIRECT_FROM_MENUS', 'prepare'),
-        'from_payment' => env('ORDERING_REDIRECT_FROM_PAYMENT', 'history'),
+        'from_menus' => env('ORDERING_REDIRECT_FROM_MENUS', 'customer.prepare'),
+        'from_payment' => env('ORDERING_REDIRECT_FROM_PAYMENT', 'customer.history'),
     ],
 
     /**
@@ -137,14 +136,12 @@ return [
     /**
      * ルーティングを登録.
      */
-    'routes' => env('ORDERING_ROUTES', true),
+    'routes' => false,
 
-    /**
-     * ミドルウェア.
-     */
     'middleware' => [
-        'web' => env('ORDERING_MIDDLEWARE_WEB', 'web'),
-        'api' => env('ORDERING_MIDDLEWARE_API', 'api'),
+        // すべてのウェブ注文ルートに auth を付与
+        'web' => ['web', 'auth'],
+        'api' => ['api'],
     ],
 
     /**

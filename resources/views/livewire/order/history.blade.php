@@ -2,7 +2,7 @@
     use Illuminate\Support\Arr;
 @endphp
 
-<div class="mx-auto pb-40">
+<div class="mx-auto pb-40" wire:poll.5000ms="loadHistories">
     @include('ordering::order.header')
 
     <div class="p-3 m-6 text-center">

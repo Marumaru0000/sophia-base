@@ -4,7 +4,7 @@
             <h1 class="text-3xl">{{ config('app.name', 'Laravel') }}</h1>
         </x-slot>
 
-        <form method="POST" action="{{ route('login') }}">
+        <form method="POST" action="{{ route('admin.login.submit') }}">
         @csrf
 
         <!-- Password -->

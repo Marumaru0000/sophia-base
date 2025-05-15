@@ -69,7 +69,7 @@ class PayPayCallback extends Component
      */
     public function back()
     {
-        return redirect()->route('order', ['table' => session('table')]);
+        return redirect()->route('customer.order', ['table' => session('table')]);
     }
 
     public function render()

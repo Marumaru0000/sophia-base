@@ -33,7 +33,7 @@ class LoginAction implements Login
 
         LoginEvent::dispatch($request);
 
-        return redirect()->route('dashboard')
+        return redirect()->route('admin.dashboard')
                          ->cookie(config('ordering.cookie'), true);
     }
 }

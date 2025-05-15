@@ -12,6 +12,7 @@ use GuzzleHttp\Client;
 use Revolution\Ordering\Facades\Menu;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 
 class History extends Component
 {
@@ -20,10 +21,6 @@ class History extends Component
     public function mount(): void
     {
         $this->currentTime = now()->format('H:i:s');
-
-        if (!session()->has('customer_id')) {
-            session(['customer_id' => uniqid('cust_', true)]);
-        }
     }
 
     public function updateCurrentTime(): void
@@ -43,15 +40,16 @@ class History extends Component
         $apiKey     = env('AIRTABLE_API_KEY');
         $baseId     = env('AIRTABLE_BASE_ID');
         $tableName  = env('AIRTABLE_TABLE_NAME');
-        $customerId = session('customer_id');
+        $lineUserId = Auth::user()->line_user_id;
 
-        Log::info("Fetching history for customer_id: {$customerId}");
+        Log::info("Fetching history for line_user_id: {$lineUserId}");
 
         $response = Http::withHeaders([
             'Authorization' => "Bearer {$apiKey}",
-        ])->get("https://api.airtable.com/v0/{$baseId}/{$tableName}", [
-            'filterByFormula' => "{customer_id} = '{$customerId}'"
-        ]);
+            'Content-Type'  => 'application/json',
+        ])->get("https://api.airtable.com/v0/{$baseId}/{$tableName}",
+        ['filterByFormula' => "{line_user_id} = '{$lineUserId}'"]
+        );
 
         Log::info('Airtable 履歴取得レスポンス:', ['response' => $response->json()]);
 
@@ -82,7 +80,7 @@ class History extends Component
                 'status'          => $record['fields']['status'] ?? '未準備',
                 'payment_method'  => $record['fields']['payment_method'] ?? 'PayPay',
                 'image'           => $image,
-                'category' => $record['fields']['category'] ?? '未分類',
+                'category'        => $record['fields']['category'] ?? '未分類',
             ];
         })->values();
     }
@@ -111,15 +109,15 @@ class History extends Component
             return collect([]);
         }
     }
-
-    public function deleteHistory(): void
-    {
-        session()->forget('history');
-    }
+    public function loadHistories(): void
+{
+    // 単純に再レンダリングのために $this->getHistoriesProperty() を読み出す
+    $this->render();
+}
 
     public function back()
     {
-        return redirect()->route('order');
+        return redirect()->route('customer.order');
     }
 
     public function render()

@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\Redirector;
+use Livewire\Attributes\On;
 use GuzzleHttp\Client;
 use Revolution\Ordering\Contracts\Payment\PaymentMethodFactory;
 use Revolution\Ordering\Facades\Cart;
@@ -88,7 +89,7 @@ class Prepare extends Component
      */
     public function back()
     {
-        return redirect()->route('order', ['table' => session('table')]);
+        return redirect()->route('customer.order', ['table' => session('table')]);
     }
 
     /**
@@ -108,7 +109,7 @@ class Prepare extends Component
     {
         if (empty($this->payment_method)) {
             session()->flash('payment_redirect_error', '支払い方法を選択してください。');
-            return;
+            return null;
         }
 
         return Payment::driver($this->payment_method)->redirect();
